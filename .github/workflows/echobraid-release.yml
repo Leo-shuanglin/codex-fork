@@ -26,13 +26,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-      - name: Add target
-        run: rustup target add ${{ matrix.target }}
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
         with:
-          workspaces: codex-rs
-          shared-key: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
+      - name: Verify toolchain has target
+        run: |
+          rustup show
+          rustup target list --installed
+          rustc --print=sysroot
       - name: Build codex (release)
         working-directory: codex-rs
         run: cargo build --release -p codex-cli --target ${{ matrix.target }} --bin codex
