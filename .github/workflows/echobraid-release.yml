@@ -24,13 +24,20 @@ jobs:
           - x86_64-apple-darwin
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      # codex-rs/rust-toolchain.toml pins channel = "1.93.0"; install that
+      # exact toolchain (not generic "stable", which would be a different
+      # toolchain without the x86_64 target installed and lead to E0463
+      # "can't find crate for core" when cargo flips to 1.93.0 in codex-rs/).
+      - name: Install Rust 1.93.0 with cross target
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: "1.93.0"
+          components: clippy,rustfmt,rust-src
           targets: ${{ matrix.target }}
-      - name: Verify toolchain has target
+      - name: Verify toolchain
+        working-directory: codex-rs
         run: |
-          rustup show
+          rustup show active-toolchain
           rustup target list --installed
           rustc --print=sysroot
       - name: Build codex (release)
